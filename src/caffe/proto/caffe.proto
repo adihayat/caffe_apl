@@ -403,6 +403,7 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
+	optional APLParameter apl_param = 154;
 }
 
 // Message that stores parameters used to apply transformation
@@ -1399,3 +1400,15 @@ message PReLUParameter {
   // Whether or not slope paramters are shared across channels.
   optional bool channel_shared = 2 [default = false];
 }
+
+// Message that stores parameters used by APLLayer
+message APLParameter {
+  // Adaptive Piecewise Linear (APL) Unit described in 
+	// Agostinelli et al, Learning Activation Functions to Improve Deep Neural Networks
+
+  optional uint32 sums = 1 [default = 2];
+  optional FillerParameter slope_filler = 2; //controls slope. Usually random uniform between -0.5 and 0.5. Should decrease and number of sums increases
+  optional FillerParameter offset_filler = 3; // controls offset. Usually gaussian with std 0.5 
+	optional bool save_mem = 4 [default = false];
+}
+
