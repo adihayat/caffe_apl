@@ -32,6 +32,7 @@ template <typename Dtype>
 
 		sums_ = this->layer_param_.apl_param().sums();
 		save_mem_ = this->layer_param_.apl_param().save_mem();
+                is_shared_ = this->layer_param_.apl_param().share_weights();
 
 		// Check if we need to set up the weights
 		if (this->blobs_.size() > 0) {
@@ -196,6 +197,37 @@ template <typename Dtype>
 				}
 			}
 		}
+
+                if (!is_shared_)
+                    return; 
+		
+                /* Gradients to neuron layer*/
+		for (int e=0; e<M_; ++e) {
+                        for (int s=0; s<sums_;s++)
+                        {
+                            Dtype sum_neuron_weight_diff = 0;
+                            Dtype sum_neuron_offset_diff = 0;
+
+			    for (int k=0; k<K_; ++k) {
+				int sumPos = k*sums_;
+			    	sum_neuron_weight_diff += neuron_weight_diff[sumPos + s];
+                                sum_neuron_offset_diff += neuron_offset_diff[sumPos + s];
+			    }
+
+                            Dtype mean_neuron_weight_diff = sum_neuron_weight_diff / K_;
+                            Dtype mean_neuron_offset_diff = sum_neuron_offset_diff / K_;
+			    
+                            for (int k=0; k<K_; ++k) {
+				int sumPos = k*sums_;
+			    	neuron_weight_diff[sumPos + s] = mean_neuron_weight_diff;
+                                neuron_offset_diff[sumPos + s] = mean_neuron_offset_diff;
+			    }
+
+                        }
+		}
+
+
+
 	}
 
 #ifdef CPU_ONLY

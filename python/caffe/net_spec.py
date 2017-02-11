@@ -37,7 +37,9 @@ def param_name_dict():
     # strip the final '_param' or 'Parameter'
     param_names = [s[:-len('_param')] for s in param_names]
     param_type_names = [s[:-len('Parameter')] for s in param_type_names]
-    return dict(zip(param_type_names, param_names))
+    res = dict(zip(param_type_names, param_names))
+    res["Deconvolution"] = "convolution"
+    return res
 
 
 def to_proto(*tops):
@@ -93,8 +95,11 @@ class Top(object):
 
         return to_proto(self)
 
+    def _update(self, params):
+        self.fn._update(params)
+
     def _to_proto(self, layers, names, autonames):
-        return self.fn._to_proto(layers, names, autonames)
+        return self.fn._to_proto(layers, names, autonames) if self.fn else ""
 
 
 class Function(object):
@@ -128,13 +133,20 @@ class Function(object):
             names[top] = top.fn.type_name + str(autonames[top.fn.type_name])
         return names[top]
 
+    def _update(self, params):
+        self.params.update(params)
+
     def _to_proto(self, layers, names, autonames):
         if self in layers:
             return
         bottom_names = []
         for inp in self.inputs:
-            inp._to_proto(layers, names, autonames)
-            bottom_names.append(layers[inp.fn].top[inp.n])
+            if inp.fn :
+                inp._to_proto(layers, names, autonames)
+                bottom_names.append(layers[inp.fn].top[inp.n])
+            else:
+                bottom_names.append(inp.n)
+
         layer = caffe_pb2.LayerParameter()
         layer.type = self.type_name
         layer.bottom.extend(bottom_names)
@@ -180,6 +192,20 @@ class NetSpec(object):
 
     def __getitem__(self, item):
         return self.__getattr__(item)
+
+    def __delitem__(self, name):
+        del self.tops[name]
+
+    def keys(self):
+        keys = [k for k, v in six.iteritems(self.tops)]
+        return keys
+
+    def vals(self):
+        vals = [v for k, v in six.iteritems(self.tops)]
+        return vals
+
+    def update(self, name, params):
+        self.tops[name]._update(params)
 
     def to_proto(self):
         names = {v: k for k, v in six.iteritems(self.tops)}

@@ -780,6 +780,7 @@ class APLLayer : public NeuronLayer<Dtype> {
   shared_ptr<SyncedMemory> example_multiplier_;
   shared_ptr<SyncedMemory> temp_ex_neuron_sum_;
   shared_ptr<SyncedMemory> maxs_;
+  bool                     is_shared_;
 };
 
 

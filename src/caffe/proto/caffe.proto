@@ -1410,5 +1410,6 @@ message APLParameter {
   optional FillerParameter slope_filler = 2; //controls slope. Usually random uniform between -0.5 and 0.5. Should decrease and number of sums increases
   optional FillerParameter offset_filler = 3; // controls offset. Usually gaussian with std 0.5 
 	optional bool save_mem = 4 [default = false];
+  optional bool  share_weights = 5 [default = false];
 }
 

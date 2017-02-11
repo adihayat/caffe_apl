@@ -92,7 +92,7 @@ template <typename Dtype>
 	void APLLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 			const vector<Blob<Dtype>*>& top) {
 		//Forward_cpu(bottom,top);
-
+#if 1
 		//Initialize
 		const Dtype* bottom_data = bottom[0]->gpu_data();
 		Dtype* top_data = top[0]->mutable_gpu_data();
@@ -114,6 +114,7 @@ template <typename Dtype>
 					M_*K_, s, bottom_data, top_data,neuron_weight,neuron_offset,maxs_data,sums_,K_);
 			CUDA_POST_KERNEL_CHECK;
 		}
+#endif
 	}
 
 template <typename Dtype>
@@ -185,6 +186,8 @@ template <typename Dtype>
 			const vector<Blob<Dtype>*>& bottom) {
 		//Backward_cpu(top,propagate_down,bottom);
 
+#if 1
+
 		//Initialize
 		const Dtype* bottom_data = bottom[0]->gpu_data();
 		const Dtype* top_diff = top[0]->gpu_diff();
@@ -239,6 +242,7 @@ template <typename Dtype>
 				CUDA_POST_KERNEL_CHECK;
 			}
 		}
+#endif
 	}
 
 INSTANTIATE_LAYER_GPU_FUNCS(APLLayer);
