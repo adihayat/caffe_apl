@@ -129,6 +129,9 @@ class Solver {
   // True iff a request to stop early was received.
   bool requested_early_exit_;
 
+  Dtype momentum_;
+  Dtype initial_momentum_;
+
   DISABLE_COPY_AND_ASSIGN(Solver);
 };
 

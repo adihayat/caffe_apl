@@ -181,6 +181,13 @@ message SolverParameter {
   optional int32 stepsize = 13;
   // the stepsize for learning rate policy "multistep"
   repeated int32 stepvalue = 34;
+  // For doing preset learning rate
+  repeated float lr = 66;
+  repeated float lr_change = 67;
+
+  optional float max_momentum = 68 [default = 0.9];
+  optional float momentum_change = 69 [default = 500];
+  optional uint32 momentum_change_steps = 60 [default = 0];
 
   // Set clip_gradients to >= 0 to clip parameter gradients to that L2 norm,
   // whenever their actual L2 norm is larger.

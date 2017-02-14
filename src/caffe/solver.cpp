@@ -48,6 +48,10 @@ void Solver<Dtype>::Init(const SolverParameter& param) {
   LOG_IF(INFO, Caffe::root_solver()) << "Initializing solver from parameters: "
     << std::endl << param.DebugString();
   param_ = param;
+	
+	momentum_  = param_.momentum();
+	initial_momentum_ = momentum_;
+
   CHECK_GE(param_.average_loss(), 1) << "average_loss should be non-negative.";
   CheckSnapshotWritePermissions();
   if (Caffe::root_solver() && param_.random_seed() >= 0) {
@@ -199,6 +203,11 @@ void Solver<Dtype>::Step(int iters) {
   smoothed_loss_ = 0;
 
   while (iter_ < stop_iter) {
+
+    if (param_.momentum_change_steps() > 0 && param_.max_momentum() > momentum_) {
+        momentum_ = param_.max_momentum() - (param_.max_momentum() - initial_momentum_)*exp(-(Dtype)iter_/param_.momentum_change_steps());
+    }
+
     // zero-init the params
     net_->ClearParamDiffs();
     if (param_.test_interval() && iter_ % param_.test_interval() == 0
@@ -227,6 +236,7 @@ void Solver<Dtype>::Step(int iters) {
     if (display) {
       LOG_IF(INFO, Caffe::root_solver()) << "Iteration " << iter_
           << ", loss = " << smoothed_loss_;
+      LOG_IF(INFO, Caffe::root_solver()) << "Iteration " << iter_ << ", momentum = " << momentum_;
       const vector<Blob<Dtype>*>& result = net_->output_blobs();
       int score_index = 0;
       for (int j = 0; j < result.size(); ++j) {
