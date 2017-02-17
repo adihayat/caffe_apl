@@ -10,17 +10,10 @@ layer {
   type: "Convolution"
   bottom: "data"
   top: "conv1"
-  param {
-    lr_mult: 1
-  }
-  param {
-    lr_mult: 2
-  }
   convolution_param {
     num_output: 96
     pad: 2
     kernel_size: 5
-    stride: 1
     weight_filler {
       type: "gaussian"
       std: 0.0001
@@ -30,9 +23,26 @@ layer {
     }
   }
 }
-
 layer {
-  name: "drop1"
+  name: "apl1"
+  type: "APL"
+  bottom: "conv1"
+  top: "conv1"
+  apl_param {
+    sums: 5
+    slope_filler {
+      type: "uniform"
+      min: -0.5
+      max: 0.5
+    }
+    offset_filler {
+      type: "gaussian"
+      std: 0.5
+    }
+  }
+}
+layer {
+  name: "drop1_c"
   type: "Dropout"
   bottom: "conv1"
   top: "conv1"
@@ -40,7 +50,6 @@ layer {
     dropout_ratio: 0.25
   }
 }
-
 layer {
   name: "pool1"
   type: "Pooling"
@@ -52,51 +61,24 @@ layer {
     stride: 2
   }
 }
-
 layer {
-    name: "drop1_a"
-    type: "Dropout"
-    bottom: "pool1"
-    top: "pool1"
-    dropout_param {
-        dropout_ratio: 0.25
-    }
+  name: "drop1"
+  type: "Dropout"
+  bottom: "pool1"
+  top: "pool1_d"
+  dropout_param {
+    dropout_ratio: 0.25
+  }
 }
-
-layer {
-    name: "apl1"
-    type: "APL"
-    bottom: "pool1"
-    top: "pool1"
-    apl_param {
-        sums : 3
-        slope_filler {
-            type: "constant"
-            value: 1
-        }
-        offset_filler {
-            type: "constant"
-            value: 0
-        }
-    }
-}
-
 layer {
   name: "conv2"
   type: "Convolution"
-  bottom: "pool1"
+  bottom: "pool1_d"
   top: "conv2"
-  param {
-    lr_mult: 1
-  }
-  param {
-    lr_mult: 2
-  }
   convolution_param {
     num_output: 128
     pad: 2
     kernel_size: 5
-    stride: 1
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -106,27 +88,26 @@ layer {
     }
   }
 }
-
 layer {
-    name: "apl2"
-    type: "APL"
-    bottom: "conv2"
-    top: "conv2"
-    apl_param {
-        sums : 3
-        slope_filler {
-            type: "constant"
-            value: 1
-        }
-        offset_filler {
-            type: "constant"
-            value: 0
-        }
+  name: "apl2"
+  type: "APL"
+  bottom: "conv2"
+  top: "conv2"
+  apl_param {
+    sums: 5
+    slope_filler {
+      type: "uniform"
+      min: -0.5
+      max: 0.5
     }
+    offset_filler {
+      type: "gaussian"
+      std: 0.5
+    }
+  }
 }
-
 layer {
-  name: "drop2"
+  name: "drop2_c"
   type: "Dropout"
   bottom: "conv2"
   top: "conv2"
@@ -134,7 +115,6 @@ layer {
     dropout_ratio: 0.25
   }
 }
-
 layer {
   name: "pool2"
   type: "Pooling"
@@ -146,28 +126,24 @@ layer {
     stride: 2
   }
 }
-
 layer {
-    name: "drop2_a"
-    type: "Dropout"
-    bottom: "pool2"
-    top: "pool2"
-    dropout_param {
-        dropout_ratio: 0.25
-    }
+  name: "drop2"
+  type: "Dropout"
+  bottom: "pool2"
+  top: "pool2_d"
+  dropout_param {
+    dropout_ratio: 0.25
+  }
 }
-
-
 layer {
   name: "conv3"
   type: "Convolution"
-  bottom: "pool2"
+  bottom: "pool2_d"
   top: "conv3"
   convolution_param {
     num_output: 256
     pad: 2
     kernel_size: 5
-    stride: 1
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -177,30 +153,26 @@ layer {
     }
   }
 }
-
-
 layer {
-    name: "apl3"
-    type: "APL"
-    bottom: "conv3"
-    top: "conv3"
-    apl_param {
-        sums : 3
-        slope_filler {
-            type: "constant"
-            value: 1
-        }
-        offset_filler {
-            type: "constant"
-            value: 0
-        }
+  name: "apl3"
+  type: "APL"
+  bottom: "conv3"
+  top: "conv3"
+  apl_param {
+    sums: 5
+    slope_filler {
+      type: "uniform"
+      min: -0.5
+      max: 0.5
     }
+    offset_filler {
+      type: "gaussian"
+      std: 0.5
+    }
+  }
 }
-
-
-
 layer {
-  name: "drop3"
+  name: "drop3_c"
   type: "Dropout"
   bottom: "conv3"
   top: "conv3"
@@ -208,7 +180,6 @@ layer {
     dropout_ratio: 0.25
   }
 }
-
 layer {
   name: "pool3"
   type: "Pooling"
@@ -220,31 +191,20 @@ layer {
     stride: 2
   }
 }
-
-
 layer {
-  name: "drop3_a"
+  name: "drop3"
   type: "Dropout"
   bottom: "pool3"
-  top: "pool3"
+  top: "pool3_d"
   dropout_param {
     dropout_ratio: 0.5
   }
 }
-
 layer {
   name: "ip1"
   type: "InnerProduct"
-  bottom: "pool3"
+  bottom: "pool3_d"
   top: "ip1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   inner_product_param {
     num_output: 2048
     weight_filler {
@@ -256,10 +216,26 @@ layer {
     }
   }
 }
-
-
 layer {
-  name: "drop_ip1"
+  name: "apl4"
+  type: "APL"
+  bottom: "ip1"
+  top: "ip1"
+  apl_param {
+    sums: 5
+    slope_filler {
+      type: "uniform"
+      min: -0.5
+      max: 0.5
+    }
+    offset_filler {
+      type: "gaussian"
+      std: 0.5
+    }
+  }
+}
+layer {
+  name: "dropip1"
   type: "Dropout"
   bottom: "ip1"
   top: "ip1"
@@ -267,20 +243,11 @@ layer {
     dropout_ratio: 0.5
   }
 }
-
 layer {
   name: "ip2"
   type: "InnerProduct"
   bottom: "ip1"
   top: "ip2"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   inner_product_param {
     num_output: 2048
     weight_filler {
@@ -292,9 +259,26 @@ layer {
     }
   }
 }
-
 layer {
-  name: "drop_ip2"
+  name: "apl5"
+  type: "APL"
+  bottom: "ip2"
+  top: "ip2"
+  apl_param {
+    sums: 5
+    slope_filler {
+      type: "uniform"
+      min: -0.5
+      max: 0.5
+    }
+    offset_filler {
+      type: "gaussian"
+      std: 0.5
+    }
+  }
+}
+layer {
+  name: "dropip2"
   type: "Dropout"
   bottom: "ip2"
   top: "ip2"
@@ -302,20 +286,11 @@ layer {
     dropout_ratio: 0.5
   }
 }
-
 layer {
   name: "ip3"
   type: "InnerProduct"
   bottom: "ip2"
   top: "ip3"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   inner_product_param {
     num_output: 10
     weight_filler {
