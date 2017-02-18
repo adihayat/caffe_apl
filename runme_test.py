@@ -14,7 +14,7 @@ def getCifar10_Data():
         sys.exit(1)
 
 def run_test():
-    if os.system('bash ./examples/cifar10/apl_trail5/test_Srivastevaet_APL.sh')!=0:
+    if os.system('bash ./examples/cifar10/apl_trail5/test_Srivastevaet_APL.sh ' + sys.argv[1])!=0:
         print "Error was unable to run test"
         sys.exit(1)
 
