@@ -13,6 +13,11 @@ def getCifar10_Data():
         print "Error was unable to download cifar10 dataset"
         sys.exit(1)
 
+def createCifar10_Data():
+    if os.system('./examples/cifar10/create_cifar10.sh')!=0:
+        print "Error was unable to create cifar10 dataset"
+        sys.exit(1)
+
 def run_test():
     if os.system('bash ./examples/cifar10/apl_trail5/test_Srivastevaet_APL.sh ' + sys.argv[1])!=0:
         print "Error was unable to run test"
@@ -22,4 +27,5 @@ def run_test():
 
 check_caffe_build()
 getCifar10_Data()
+createCifar10_Data()
 run_test()
